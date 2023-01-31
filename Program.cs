@@ -51,7 +51,8 @@ public static class Program
         var version = root.Element("version").Value;
         var url = root.Element("url").Value;
         var mainDll = $"{appName}.exe";
-        var mainClass = $"{appName.Replace("-", "_")}.Program";
+        //var mainClass = $"{appName.Replace("-", "_")}.exe";
+        var mainClass = $"{appName}.exe";
         Console.Error.WriteLine(version);
         Console.Error.WriteLine(url);
         var profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

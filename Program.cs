@@ -56,31 +56,31 @@ public static class Program
         Console.Error.WriteLine(url);
         var profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         Console.Error.WriteLine(profilePath);
-        var installPath = $"{profilePath}\\.javacommons\\.software\\{appName}-{version}";
+        var installPath = $"{profilePath}\\.nuget-tools\\.tools\\{appName}-{version}";
         Console.Error.WriteLine(installPath);
         if (!Directory.Exists(installPath))
         {
-            Console.Error.WriteLine($"{installPath} が存在しません");
+            Console.Error.WriteLine($"{installPath} doest not exist.");
             DirectoryInfo di = new DirectoryInfo(installPath);
             DirectoryInfo diParent = di.Parent;
             string parent = diParent.FullName;
-            Console.Error.WriteLine($"{parent} を準備します");
+            Console.Error.WriteLine($"{parent} is begin prepared.");
             Directory.CreateDirectory(parent);
             string destinationPath = $"{parent}\\{appName}-{version}.zip";
             FileInfo fi = new FileInfo(destinationPath);
             if (!fi.Exists)
             {
-                Console.Error.WriteLine($"{destinationPath} にダウンロードします");
+                Console.Error.WriteLine($"{destinationPath} is begin downloaded.");
                 DownloadBinaryFromUrl(url, destinationPath);
-                Console.Error.WriteLine($"{destinationPath} にダウンロードが完了しました");
+                Console.Error.WriteLine($"{destinationPath} has been downloaded.");
             }
 
-            Console.Error.WriteLine($"{installPath} に展開します");
+            Console.Error.WriteLine($"{installPath}: installing...");
             ZipFile.ExtractToDirectory(destinationPath, installPath);
-            Console.Error.WriteLine($"{installPath} に展開しました");
+            Console.Error.WriteLine($"{installPath}: installed.");
         }
 
-        Console.Error.WriteLine($"{mainClass} を起動します");
+        Console.Error.WriteLine($"{mainClass} is being run.");
         Thread.Sleep(1000);
         StartAssembly($"{installPath}\\{mainDll}", mainClass, version, args);
     }

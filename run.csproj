@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Dotnet CLI tool allowing you to run C# applets.</Description>
-    <Version>2023.0201.0528.37</Version>
+    <Version>2023.0201.2006.19</Version>
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <OutputType>Exe</OutputType>
@@ -23,7 +23,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <ApplicationIcon>tarantula.ico</ApplicationIcon>
-    <RootNamespace>Run.Exe</RootNamespace>
+    <RootNamespace>Run</RootNamespace>
     <DefineConstants>$(DefineConstants);NETCORE;NET6_0</DefineConstants>
    </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -35,6 +35,9 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="JavaCommons.Extra" Version="2023.201.2000.37" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md">

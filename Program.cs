@@ -6,6 +6,7 @@ using System.Threading;
 using System.Net;
 using System.Text;
 using System.Xml.Linq;
+using static JavaCommons.Extra.Extra;
 
 namespace Run;
 
@@ -115,6 +116,7 @@ public static class Program
         Environment.Exit(process.ExitCode);
     }
    
+   #if false
     static string GetStringFromUrl(string url)
     {
         HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
@@ -143,4 +145,5 @@ public static class Program
             }
         }
     }
+#endif
 }

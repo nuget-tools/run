@@ -51,9 +51,8 @@ public static class Program
         XElement root = doc.Root;
         var version = root.Element("version").Value;
         var url = root.Element("url").Value;
-        var mainDll = $"{appName}.exe";
-        //var mainClass = $"{appName.Replace("-", "_")}.exe";
-        var mainClass = $"{appName}.exe";
+        //var mainDll = $"{appName}.exe";
+        //var mainClass = $"{appName}.exe";
         Console.Error.WriteLine(version);
         Console.Error.WriteLine(url);
         var profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -82,12 +81,12 @@ public static class Program
             Console.Error.WriteLine($"{installPath}: installed.");
         }
 
-        Console.Error.WriteLine($"{mainClass} is being run.");
-        Thread.Sleep(1000);
-        StartAssembly($"{installPath}\\{mainDll}", mainClass, version, args);
+        Console.Error.WriteLine($"{appName} is being run.");
+        //Thread.Sleep(1000);
+        StartAssembly(installPath, appName, version, args);
     }
 
-    static void StartAssembly(string path, string mainClass, string version, string[] args)
+    static void StartAssembly(string installPath, string appName, string version, string[] args)
     {
         string argList = "";
         for (int i = 0; i < args.Length; i++)
@@ -100,12 +99,21 @@ public static class Program
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.FileName = path;
-        process.StartInfo.Arguments = argList;
+        if (File.Exists($"{installPath}/{appName}.exe"))
+        {
+            process.StartInfo.FileName = $"{installPath}/{appName}.exe";
+            process.StartInfo.Arguments = argList;
+        }
+        else
+        {
+            process.StartInfo.FileName = "dotnet";;
+            process.StartInfo.Arguments = $"\"{installPath}/{appName}.dll\" {argList}";
+        }
         process.OutputDataReceived += (sender, e) => { Console.WriteLine(e.Data); };
         process.ErrorDataReceived += (sender, e) => { Console.Error.WriteLine(e.Data); };
         process.Start();
-        Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs e) {
+        Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+        {
             process.Kill();
         };
         process.BeginOutputReadLine();
@@ -115,35 +123,4 @@ public static class Program
         process.CancelErrorRead();
         Environment.Exit(process.ExitCode);
     }
-   
-   #if false
-    static string GetStringFromUrl(string url)
-    {
-        HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-        WebHeaderCollection header = response.Headers;
-        using (var reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
-        {
-            return reader.ReadToEnd();
-        }
-    }
-
-    static void DownloadBinaryFromUrl(string url, string destinationPath)
-    {
-        WebRequest objRequest = System.Net.HttpWebRequest.Create(url);
-        var objResponse = objRequest.GetResponse();
-        byte[] buffer = new byte[32768];
-        using (Stream input = objResponse.GetResponseStream())
-        {
-            using (FileStream output = new FileStream(destinationPath, FileMode.CreateNew))
-            {
-                int bytesRead;
-                while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    output.Write(buffer, 0, bytesRead);
-                }
-            }
-        }
-    }
-#endif
 }

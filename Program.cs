@@ -57,7 +57,7 @@ public static class Program
         Console.Error.WriteLine(url);
         var profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         Console.Error.WriteLine(profilePath);
-        var installPath = $"{profilePath}\\.nuget-tools\\.tools\\{appName}-{version}";
+        var installPath = $"{profilePath}/.nuget-tools/.tools/{appName}-{version}";
         Console.Error.WriteLine(installPath);
         if (!Directory.Exists(installPath))
         {
@@ -67,7 +67,7 @@ public static class Program
             string parent = diParent.FullName;
             Console.Error.WriteLine($"{parent} is begin prepared.");
             Directory.CreateDirectory(parent);
-            string destinationPath = $"{parent}\\{appName}-{version}.zip";
+            string destinationPath = $"{parent}/{appName}-{version}.zip";
             FileInfo fi = new FileInfo(destinationPath);
             if (!fi.Exists)
             {

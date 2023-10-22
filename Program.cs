@@ -6,9 +6,8 @@ using System.Threading;
 using System.Net;
 using System.Text;
 using System.Xml.Linq;
-using static JavaCommons.Extra.Extra;
 
-namespace Run;
+namespace Run.Exe;
 
 public static class Program
 {
@@ -46,43 +45,53 @@ public static class Program
     {
         Console.Error.WriteLine(appName);
         Console.Error.WriteLine(xmlUrl);
+        Console.Error.WriteLine("args: ["+string.Join(',', args)+"]");
         var xml = GetStringFromUrl(xmlUrl);
         XDocument doc = XDocument.Parse(xml);
         XElement root = doc.Root;
         var version = root.Element("version").Value;
         var url = root.Element("url").Value;
-        //var mainDll = $"{appName}.exe";
-        //var mainClass = $"{appName}.exe";
+        var mainDll = $"{appName}.exe";
+        //var mainClass = $"{appName.Replace("-", "_")}.Program";
         Console.Error.WriteLine(version);
         Console.Error.WriteLine(url);
         var profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         Console.Error.WriteLine(profilePath);
+        //var installPath = $"{profilePath}\\.javacommons\\.software\\{appName}-{version}";
         var installPath = $"{profilePath}/.nuget-tools/.tools/{appName}-{version}";
         Console.Error.WriteLine(installPath);
         if (!Directory.Exists(installPath))
         {
+            //Console.Error.WriteLine($"{installPath} が存在しません");
             Console.Error.WriteLine($"{installPath} doest not exist.");
             DirectoryInfo di = new DirectoryInfo(installPath);
             DirectoryInfo diParent = di.Parent;
             string parent = diParent.FullName;
+            //Console.Error.WriteLine($"{parent} を準備します");
             Console.Error.WriteLine($"{parent} is begin prepared.");
             Directory.CreateDirectory(parent);
+            //string destinationPath = $"{parent}\\{appName}-{version}.zip";
             string destinationPath = $"{parent}/{appName}-{version}.zip";
             FileInfo fi = new FileInfo(destinationPath);
             if (!fi.Exists)
             {
+                //Console.Error.WriteLine($"{destinationPath} にダウンロードします");
                 Console.Error.WriteLine($"{destinationPath} is begin downloaded.");
                 DownloadBinaryFromUrl(url, destinationPath);
+                //Console.Error.WriteLine($"{destinationPath} にダウンロードが完了しました");
                 Console.Error.WriteLine($"{destinationPath} has been downloaded.");
             }
 
+            //Console.Error.WriteLine($"{installPath} に展開します");
             Console.Error.WriteLine($"{installPath}: installing...");
             ZipFile.ExtractToDirectory(destinationPath, installPath);
+            //Console.Error.WriteLine($"{installPath} に展開しました");
             Console.Error.WriteLine($"{installPath}: installed.");
         }
 
+        //Console.Error.WriteLine($"{appName} を起動します");
         Console.Error.WriteLine($"{appName} is being run.");
-        //Thread.Sleep(1000);
+        Thread.Sleep(1000);
         StartAssembly(installPath, appName, version, args);
     }
 
@@ -101,13 +110,15 @@ public static class Program
         process.StartInfo.CreateNoWindow = true;
         if (File.Exists($"{installPath}/{appName}.exe"))
         {
+            Console.Error.WriteLine("then");
             process.StartInfo.FileName = $"{installPath}/{appName}.exe";
             process.StartInfo.Arguments = argList;
         }
         else
         {
-            process.StartInfo.FileName = "dotnet";;
-            process.StartInfo.Arguments = $"\"{installPath}/{appName}.dll\" {argList}";
+            Console.Error.WriteLine("else");
+            process.StartInfo.FileName = "dotnet";
+            process.StartInfo.Arguments = $"exec {installPath}/{appName}.dll {argList}";
         }
         process.OutputDataReceived += (sender, e) => { Console.WriteLine(e.Data); };
         process.ErrorDataReceived += (sender, e) => { Console.Error.WriteLine(e.Data); };
@@ -122,5 +133,34 @@ public static class Program
         process.CancelOutputRead();
         process.CancelErrorRead();
         Environment.Exit(process.ExitCode);
+    }
+
+    static string GetStringFromUrl(string url)
+    {
+        HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+        WebHeaderCollection header = response.Headers;
+        using (var reader = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8))
+        {
+            return reader.ReadToEnd();
+        }
+    }
+
+    static void DownloadBinaryFromUrl(string url, string destinationPath)
+    {
+        WebRequest objRequest = System.Net.HttpWebRequest.Create(url);
+        var objResponse = objRequest.GetResponse();
+        byte[] buffer = new byte[32768];
+        using (Stream input = objResponse.GetResponseStream())
+        {
+            using (FileStream output = new FileStream(destinationPath, FileMode.CreateNew))
+            {
+                int bytesRead;
+                while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    output.Write(buffer, 0, bytesRead);
+                }
+            }
+        }
     }
 }
